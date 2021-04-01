@@ -167,6 +167,8 @@ class Monster {
 					$('space').removeChild(spaceship);
 					console.log('Spaceshipt destroyed, game over! :( ');
 
+					$('game-updates').innerHTML =' Spaceship destroyed, game over! :( ';
+
 				}
 			}
 		}
@@ -226,6 +228,9 @@ class Monster {
 		return this.life;
 	}
 
+	getId() {
+		return this.id;
+	}
 
 }
 
@@ -276,12 +281,14 @@ class Bullet {
 					if (monster.getLife() > 0) {
 						monster.setDamage(this.getDamage());
 						console.log('Monster Life => ', monster.getLife());
+						$('game-updates').innerHTML = ' ' + monster.getId() + ' Life => ' + monster.getLife() + '%';
 						this.isCollided = true;
 
 						if (monster.getLife() <= 0) {
 							monsters = monsters.filter((e, j) => j !== i);
 							if (monsters.length === 0)
 								console.log('You win!');
+								$('game-updates').innerHTML =' You win!';
 						}
 					}
 				}
