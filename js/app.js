@@ -152,6 +152,14 @@ class Monster {
 
 	setDamage(damage) {
 		this.life -= damage;
+		this.feelPain();
+	}
+
+	feelPain(){
+		this.monster.src = 'img/monster-hit.png';
+		window.setTimeout(() => {
+			this.monster.src = 'img/monster.png';
+		}, 900);
 	}
 
 	setTop(y) {
