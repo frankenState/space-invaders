@@ -4,36 +4,51 @@ var monsters = [];
 var bullets = [];
 
 window.onload = (e) => {
+	
 	console.log('loaded!');
 
 
+	let space = $('space');
+	let spaceXY = space.getBoundingClientRect();
 
-	monsters.push(new Monster());
-	monsters.push(new Monster(300, 8));
+	$('monster-1-life').innerHTML = "100";
+	$('monster-2-life').innerHTML = "100";
 
-	$('spaceship').style.top = (parse($('space').style.height) * 0.8) + 'px';
-	$('spaceship').style.left = (parse($('space').style.width) * 0.47) + 'px';
-	
+
+	monsters.push(new Monster("monster-1", spaceXY.x + 120, spaceXY.y));
+	monsters.push(new Monster("monster-2", spaceXY.x, spaceXY.y));
+
+
+	$('spaceship').style.top =  (parse($('space').style.height) * 0.8) + 'px';
+	$('spaceship').style.left = spaceXY.x + (parse($('space').style.width) * 0.47) + 'px';
+    
 
 	$('space').onmousemove = (e) => {
+		// console.log("mousemove=> ", e);
+
+
+
+		let space = $('space');
+		let spaceXY = space.getBoundingClientRect();
 		let spaceship = $('spaceship');
-		let spaceX = parse($('space').style.width);
-		let spaceSX = $('space').offsetLeft;
-		let spaceY = parse($('space').style.height);
-		let spaceSY = $('space').offsetTop;
-	
-		let yOverlap = (e.clientY + (spaceship.height / 2.8 )) > spaceY;
-		let xOverlap = (e.clientX + (spaceship.width / 2.8 )) > spaceX;	
-		let xSOverlap = e.clientX - (spaceship.height / 2 ) < spaceSX;
-		let ySOverlap = e.clientY - (spaceship.width / 2 ) < spaceSY;
-	
+		let spaceX = spaceXY.x + parse(space.style.width);
+		let spaceSX = space.offsetLeft;
+		let spaceY = spaceXY.y + parse(space.style.height);
+		let spaceSY = space.offsetTop;
+		console.log({ spaceX, spaceSX, spaceY, spaceSY, spaceXY, e });
+
+		let yOverlap = (e.clientY + (spaceship.height / 2.8)) > spaceY;
+		let xOverlap = (e.clientX + (spaceship.width / 2.8)) > spaceX;
+		let xSOverlap = e.clientX - (spaceship.height / 2) < spaceSX;
+		let ySOverlap = e.clientY - (spaceship.width / 2) < spaceSY;
+
 		if (!yOverlap && !ySOverlap)
-			spaceship.style.top = calc(MIDC, e.clientY, spaceship.height ) + 'px';
-		
+			spaceship.style.top = calc(MIDC, e.clientY, spaceship.height) + 'px';
+
 		if (!xOverlap && !xSOverlap)
-		spaceship.style.left = calc(MIDC, e.clientX, spaceship.width ) + 'px';
-	
-		
+			spaceship.style.left = calc(MIDC, e.clientX, spaceship.width) + 'px';
+
+
 	}
 
 	$('spaceship').onclick = (e) => {
@@ -41,10 +56,21 @@ window.onload = (e) => {
 			e.clientX - (parse($('spaceship').style.width) * 0.09),
 			e.clientY - (parse($('spaceship').style.height) * 0.5)
 		);
+
+		// update bullets-fired
+		let bulletsFiredEl = $('bullets-fired'),
+		bulletsFired = parseInt(bulletsFiredEl.innerHTML) + 1;
+		bulletsFiredEl.innerHTML = bulletsFired;
+
+		// update bullets-missed
+		// update bullets-fired
+		let bulletsHit = parseInt($('bullets-hit').innerHTML),
+		bulletsMissedEl = $('bullets-missed');
+		bulletsMissedEl.innerHTML = bulletsFired - bulletsHit;
 	}
 }
 
-const bullet = (x,y) => {
+const bullet = (x, y) => {
 	var div = document.createElement('div');
 	div.style.position = 'absolute';
 	div.style.top = y + 'px';
@@ -67,17 +93,19 @@ const bulletAccelerate = (bullet) => {
 // --- MONSTER CLASS -- //
 class Monster {
 	constructor(
-		x = 8, 
-		y = 10, 
-		width = 100, 
-		height = 100, 
-		url = 'img/monster.png', 
+		id,
+		x = 8,
+		y = 10,
+		width = 100,
+		height = 100,
+		url = 'img/monster.png',
 		life = 100
 	) {
 		this.x = x;
 		this.y = y;
 		this.url = url;
 		this.life = life;
+		this.id = id;
 		var monster = document.createElement('img');
 		monster.style.position = 'absolute';
 		monster.style.top = y + 'px';
@@ -85,6 +113,7 @@ class Monster {
 		monster.style.width = width + 'px';
 		monster.style.height = height + 'px';
 		monster.src = url;
+		monster.id = id;
 		$('space').appendChild(monster);
 		this.monster = monster;
 		this.toEast = true;
@@ -105,21 +134,21 @@ class Monster {
 
 		let monsterX = this.getOffsetX();
 		let monsterY = this.getOffsetY();
-		
+
 		if ((monsterX + width) > (startX + endX))
 			this.toEast = false;
-		else if (monsterX < startX && !this.toEast) 
+		else if (monsterX < startX && !this.toEast)
 			this.toEast = true;
 
-		if (this.toEast){
+		if (this.toEast) {
 			this.setLeft(monsterX + xSpeed);
 		} else {
 			this.setLeft(monsterX - xSpeed);
 		}
 		let spaceship = $('spaceship');
 		// check for spaceship collision
-		if (!this.spaceshipDestroyed && spaceship !== null){
-			
+		if (!this.spaceshipDestroyed && spaceship !== null) {
+
 			let sSX = spaceship.offsetLeft,
 				sEX = sSX + parse(spaceship.style.width),
 				sSY = spaceship.offsetTop,
@@ -131,8 +160,8 @@ class Monster {
 				mSY = this.getOffsetY(),
 				mEY = mSY + parse(this.getHeight());
 
-			if (sSX >= mSX && sEX <= mEX){
-				if (mEY >= sSY){
+			if (sSX >= mSX && sEX <= mEX) {
+				if (mEY >= sSY) {
 					this.spaceshipDestroyed = true;
 					$('space').onmousemove = null;
 					$('space').removeChild(spaceship);
@@ -153,13 +182,20 @@ class Monster {
 	setDamage(damage) {
 		this.life -= damage;
 		this.feelPain();
+
+		// update bullet-hit
+		let bulletHitEl = $('bullets-hit');
+		let bulletHit = parse(bulletHitEl.innerHTML) + 1;
+		bulletHitEl.innerHTML = bulletHit;
 	}
 
-	feelPain(){
+	feelPain() {
 		this.monster.src = 'img/monster-hit.png';
 		window.setTimeout(() => {
 			this.monster.src = 'img/monster.png';
 		}, 900);
+		$(this.id + '-life').innerHTML = this.life;
+		console.log(this.id + '-life');
 	}
 
 	setTop(y) {
@@ -197,7 +233,7 @@ class Monster {
 
 class Bullet {
 
-	constructor(x,y, speed = 7, damage = 10) {
+	constructor(x, y, speed = 7, damage = 10) {
 		var div = document.createElement('div');
 		div.style.position = 'absolute';
 		div.style.top = y + 'px';
@@ -216,15 +252,15 @@ class Bullet {
 	}
 
 	color() {
-		return `rgb(${Math.random()*254},${Math.random()*254},${Math.random()*254})`;
+		return `rgb(${Math.random() * 254},${Math.random() * 254},${Math.random() * 254})`;
 	}
 
 	accelerateBullet() {
-		
-		this.setTop( this.getOffsetY() - this.speed);
+
+		this.setTop(this.getOffsetY() - this.speed);
 
 		// check for collisions 
-		monsters.forEach( (monster,i) => {
+		monsters.forEach((monster, i) => {
 			let mSX = monster.getOffsetX(),
 				mEX = monster.getOffsetX() + parse(monster.getWidth()),
 				mSY = monster.getOffsetY(),
@@ -235,7 +271,7 @@ class Bullet {
 				bSY = this.getOffsetY(),
 				bEY = this.getOffsetY() + parse(this.getY());
 
-			if ((mSX <= bSX && mEX >= bEX)){
+			if ((mSX <= bSX && mEX >= bEX)) {
 				if (mEY >= bSY) {
 					if (monster.getLife() > 0) {
 						monster.setDamage(this.getDamage());
@@ -243,11 +279,11 @@ class Bullet {
 						this.isCollided = true;
 
 						if (monster.getLife() <= 0) {
-							monsters = monsters.filter((e,j) => j !== i);
+							monsters = monsters.filter((e, j) => j !== i);
 							if (monsters.length === 0)
 								console.log('You win!');
 						}
-					} 
+					}
 				}
 			}
 
@@ -294,9 +330,9 @@ const calc = (type, value, value1 = 0) => {
 	const clean = parse(value);
 	const clean1 = parse(value1);
 
-	switch (type){
+	switch (type) {
 		case MIDC:
-			return ( value - (value1 / 2));
+			return (value - (value1 / 2));
 		default:
 			return clean;
 	}

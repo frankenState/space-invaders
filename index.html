@@ -1,15 +1,47 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Space Invader</title>
-	<link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-	<div id="space" style="background-color: #abc;height:600px;width:400px">
-		<img id="spaceship" src="img/spaceship.png" style="position:absolute;width: 50px; height:50px"/>
 
-	</div>
-		
-<script type="text/javascript" src="js/app.js"></script>
+<head>
+  <title>Space Invader</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div id="space" style="background-color: #abc;height:600px;width:400px">
+      <img id="spaceship" src="img/spaceship.png" style="position:absolute;width: 50px; height:50px" />
+
+    </div>
+    <div>
+      <h1>Game Status</h1>
+      <table>
+        <tr>
+          <th>Monster 1 Life</th>
+          <td><span id="monster-1-life"></span>%</td>
+        </tr>
+        <tr>
+          <th>Monster 2 Life</th>
+          <td><span id="monster-2-life"></span>%</td>
+        </tr>
+        <tr>
+          <th>Bullets Fired</th>
+          <td id="bullets-fired">0</td>
+        </tr>
+        <tr>
+          <th>Bullets Hit</th>
+          <td id="bullets-hit">0</td>
+        </tr>
+        <tr>
+          <th>Bullets Missed</th>
+          <td id="bullets-missed">0</td>
+        </tr>
+      </table>
+      
+
+    </div>
+  </div>
+
+  <script type="text/javascript" src="js/app.js"></script>
 </body>
+
 </html>
